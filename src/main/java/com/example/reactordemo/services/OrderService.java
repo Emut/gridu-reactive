@@ -1,6 +1,6 @@
 package com.example.reactordemo.services;
 
-import com.example.reactordemo.dto.OrderServiceResponse;
+import com.example.reactordemo.domain.OrderServiceResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,11 @@ public class OrderService {
     public Flux<OrderServiceResponse> getOrdersByPhoneNumber(String phoneNumber) {
 
         return orderWebClient.get()
-                .uri("/order/phone?phoneNumber={}", phoneNumber).retrieve()
-                .bodyToFlux(OrderServiceResponse.class);
+                .uri("/order/phone?phoneNumber={0}", phoneNumber).retrieve()
+                .bodyToFlux(OrderServiceResponse.class)
+                .doOnNext(orderServiceResponse -> log.info("Received:\"{}\" for request for phoneNumber:\"{}\"",
+                        orderServiceResponse, phoneNumber))
+                .doOnError(throwable -> log.error("Request for phoneNumber:\"{}\" failed,",
+                        phoneNumber, throwable));
     }
 }

@@ -1,4 +1,4 @@
-package com.example.reactordemo.dto;
+package com.example.reactordemo.domain;
 
 
 import lombok.Data;

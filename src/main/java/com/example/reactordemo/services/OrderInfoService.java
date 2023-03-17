@@ -3,6 +3,7 @@ package com.example.reactordemo.services;
 import com.example.reactordemo.domain.OrderInfo;
 import com.example.reactordemo.domain.OrderServiceResponse;
 import com.example.reactordemo.domain.ProductServiceResponse;
+import com.example.reactordemo.util.ReactiveUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.VisibleForTesting;
@@ -32,7 +33,7 @@ public class OrderInfoService {
             return productWithHighestScore
                     .map(product -> orderInfoBuilder.productName(product.getProductName())
                             .productId(product.getProductId()).build());
-        });
+        }).contextWrite(context -> context.putAll(ReactiveUtils.getMdcContext().readOnly()));
     }
 
     @VisibleForTesting

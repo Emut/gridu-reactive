@@ -4,6 +4,7 @@ import com.example.reactordemo.domain.OrderInfo;
 import com.example.reactordemo.services.OrderInfoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,6 +21,7 @@ public class OrderInfoController {
     @GetMapping("orderInfo/getByPhoneNumber")
     public Flux<OrderInfo> getOrderInfoByPhoneNumber(@RequestParam String phoneNumber,
                                                      @RequestHeader String requestId) {
+        MDC.put("requestId", requestId);
         log.info("start getOrderInfoByPhoneNumber with reqId:{} phoneNumber:{}",
                 requestId, phoneNumber);
         var result = orderInfoService.getUserOrdersByPhoneNumber(phoneNumber);

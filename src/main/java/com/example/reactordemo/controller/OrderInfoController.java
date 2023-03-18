@@ -22,10 +22,19 @@ public class OrderInfoController {
     public Flux<OrderInfo> getOrderInfoByPhoneNumber(@RequestParam String phoneNumber,
                                                      @RequestHeader String requestId) {
         MDC.put("requestId", requestId);
-        log.info("start getOrderInfoByPhoneNumber with reqId:{} phoneNumber:{}",
-                requestId, phoneNumber);
+        log.info("start getOrderInfoByPhoneNumber with reqId:{} phoneNumber:{}", requestId, phoneNumber);
         var result = orderInfoService.getUserOrdersByPhoneNumber(phoneNumber);
         log.info("end getOrderInfoByPhoneNumber with phoneNumber:{}", phoneNumber);
+        return result;
+    }
+
+    @GetMapping("orderInfo/getByUserId")
+    public Flux<OrderInfo> getOrderInfoByUserId(@RequestParam String userId,
+                                                @RequestHeader String requestId) {
+        MDC.put("requestId", requestId);
+        log.info("start getOrderInfoByPhoneNumber with reqId:{} userId:{}", requestId, userId);
+        var result = orderInfoService.getUserOrdersByUserId(userId);
+        log.info("end getOrderInfoByPhoneNumber with userId:{}", userId);
         return result;
     }
 }

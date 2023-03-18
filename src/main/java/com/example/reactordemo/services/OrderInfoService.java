@@ -3,6 +3,7 @@ package com.example.reactordemo.services;
 import com.example.reactordemo.domain.OrderInfo;
 import com.example.reactordemo.domain.OrderServiceResponse;
 import com.example.reactordemo.domain.ProductServiceResponse;
+import com.example.reactordemo.repository.UserRepository;
 import com.example.reactordemo.util.ReactiveUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,18 @@ public class OrderInfoService {
 
     private final OrderService orderService;
     private final ProductService productService;
+    private final UserRepository userRepository;
+
+    public Flux<OrderInfo> getUserOrdersByUserId(String userId) {
+        return userRepository.findById(userId)
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("Can not find user with id:" + userId)))
+                .doOnEach(signal -> ReactiveUtils.logOnEachWithMdcFromContext(signal,
+                        user -> log.info("User findById:{} returned:{}", userId, user),
+                        throwable -> log.error("User findById:{} error:", userId, throwable)))
+                .flatMapMany(user -> getUserOrdersByPhoneNumber(user.getPhone())
+                        .map(orderInfo -> orderInfo.setUserName(user.getName())))
+                .contextWrite(ReactiveUtils::mdcContextModifier);
+    }
 
     public Flux<OrderInfo> getUserOrdersByPhoneNumber(String phoneNumber) {
         Flux<OrderServiceResponse> ordersFlux = orderService.getOrdersByPhoneNumber(phoneNumber);
@@ -33,7 +46,7 @@ public class OrderInfoService {
             return productWithHighestScore
                     .map(product -> orderInfoBuilder.productName(product.getProductName())
                             .productId(product.getProductId()).build());
-        }).contextWrite(context -> context.putAll(ReactiveUtils.getMdcContext().readOnly()));
+        }).contextWrite(ReactiveUtils::mdcContextModifier);
     }
 
     @VisibleForTesting

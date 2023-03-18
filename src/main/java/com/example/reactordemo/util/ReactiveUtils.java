@@ -18,10 +18,16 @@ public class ReactiveUtils {
 
     public static final String MDC_KEY = "MDC";
 
-    public static Context getMdcContext() {
-        return Context.of(MDC_KEY,
-                Optional.ofNullable(MDC.getCopyOfContextMap())
-                        .orElse(Collections.emptyMap()));
+    public static Context mdcContextModifier(Context context) {
+        Map<String, String> currentMdc = Optional.ofNullable(MDC.getCopyOfContextMap())
+                .orElse(Collections.emptyMap());
+
+        if (context.hasKey(MDC_KEY)) {
+            ((Map<String, String>) context.get(MDC_KEY)).putAll(currentMdc);
+            return context;
+        } else {
+            return context.put(MDC_KEY, currentMdc);
+        }
     }
 
     public static <T> void logOnEachWithMdcFromContext(Signal<T> signal, Consumer<T> doOnNext, Consumer<Throwable> doOnError) {

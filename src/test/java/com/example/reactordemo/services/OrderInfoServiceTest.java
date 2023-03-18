@@ -1,7 +1,10 @@
 package com.example.reactordemo.services;
 
+import com.example.reactordemo.domain.OrderInfo;
 import com.example.reactordemo.domain.OrderServiceResponse;
 import com.example.reactordemo.domain.ProductServiceResponse;
+import com.example.reactordemo.domain.User;
+import com.example.reactordemo.repository.UserRepository;
 import com.example.reactordemo.util.ReactiveUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +29,9 @@ class OrderInfoServiceTest {
     @Mock
     ProductService productService;
 
+    @Mock
+    UserRepository userRepository;
+
     @InjectMocks
     @Spy
     OrderInfoService orderInfoService;
@@ -41,6 +47,10 @@ class OrderInfoServiceTest {
     private static final String PRODUCT_NAME = "PRODUCT_NAME1";
 
     private static final String ANOTHER_PRODUCT_NAME = "PRODUCT_NAME2";
+
+    private static final String USER_ID = "USER_ID";
+
+    private static final String USER_NAME = "USER_NAME";
 
     @Test
     void getProductWithHighestScore_whenSingleProduct_shouldReturnIt() {
@@ -147,4 +157,24 @@ class OrderInfoServiceTest {
 
     }
 
+    @Test
+    void getUserOrdersByUserId_whenUserNotFound_shouldThrow() {
+        when(userRepository.findById(USER_ID)).thenReturn(Mono.empty());
+
+        StepVerifier.create(orderInfoService.getUserOrdersByUserId(USER_ID))
+                .expectError(IllegalArgumentException.class)
+                .verify();
+    }
+
+    @Test
+    void getUserOrdersByUserId_whenUserFound_shouldReturnOrderInfo() {
+        when(userRepository.findById(USER_ID))
+                .thenReturn(Mono.just(User.builder()._id(USER_ID).name(USER_NAME).phone(PHONE_NUMBER).build()));
+        doReturn(Flux.just(OrderInfo.builder().build()))
+                .when(orderInfoService).getUserOrdersByPhoneNumber(PHONE_NUMBER);
+
+        StepVerifier.create(orderInfoService.getUserOrdersByUserId(USER_ID))
+                .assertNext(orderInfo -> assertThat(orderInfo.getUserName()).isEqualTo(USER_NAME))
+                .verifyComplete();
+    }
 }

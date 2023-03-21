@@ -1,12 +1,14 @@
 package com.example.reactordemo.domain;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document("users")
-@Data
+@Getter
+@Setter
 @Builder
 public class User {
     @Id

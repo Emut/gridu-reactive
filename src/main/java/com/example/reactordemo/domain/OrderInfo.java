@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
 
@@ -12,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @Builder
 @Accessors(chain = true)
+@ToString
 public class OrderInfo {
     String orderNumber;
     String userName;
